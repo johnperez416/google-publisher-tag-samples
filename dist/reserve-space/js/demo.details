@@ -1,0 +1,4 @@
+name: Reserve space for ads
+description: Minimize layout shift by reserving space for ads.
+authors:
+  - Google Publisher Tag Team

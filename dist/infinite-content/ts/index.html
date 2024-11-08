@@ -1,0 +1,41 @@
+<!doctype html>
+<!--
+ @license
+ Copyright 2022 Google LLC. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Use GPT to dynamically generate new ad content." />
+    <title>Tag pages with infinite content</title>
+    <script
+      async
+      src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module" src="/sample.ts"></script>
+    <style>
+      body > div {
+        margin-bottom: 5em;
+        border: solid 1px black;
+        width: 728px;
+      }
+
+      body > button {
+        position: fixed;
+        bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GPT Test Page - Infinite Content</h1>
+
+    <!-- First ad -->
+    <div id="leaderboard"></div>
+
+    <!-- Button to load more content dynamically. -->
+    <button id="addContentButton">More Content</button>
+  </body>
+</html>

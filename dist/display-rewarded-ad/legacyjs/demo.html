@@ -1,0 +1,180 @@
+<!doctype html>
+<!--
+ @license
+ Copyright 2022 Google LLC. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Display a GPT-managed rewarded ad." />
+    <title>Display a rewarded ad</title>
+    <script
+      async
+      src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      window.googletag = window.googletag || { cmd: [] };
+
+      var rewardedSlot;
+      var rewardPayload;
+
+      googletag.cmd.push(function () {
+        rewardedSlot = googletag.defineOutOfPageSlot(
+          "/22639388115/rewarded_web_example",
+          googletag.enums.OutOfPageFormat.REWARDED,
+        );
+
+        // Slot returns null if the page or device does not support rewarded ads.
+        if (rewardedSlot) {
+          rewardedSlot.addService(googletag.pubads());
+
+          googletag.pubads().addEventListener("rewardedSlotReady", function (event) {
+            updateStatus("Rewarded ad slot is ready.");
+
+            document.getElementById("watchAdButton").onclick = function () {
+              event.makeRewardedVisible();
+              displayModal();
+              updateStatus("Rewarded ad is active.");
+            };
+
+            displayModal("reward", "Watch an ad to receive a special reward?");
+          });
+
+          googletag.pubads().addEventListener("rewardedSlotClosed", dismissRewardedAd);
+
+          googletag.pubads().addEventListener("rewardedSlotGranted", function (event) {
+            rewardPayload = event.payload;
+            updateStatus("Reward granted.");
+          });
+
+          googletag.pubads().addEventListener("slotRenderEnded", function (event) {
+            if (event.slot === rewardedSlot && event.isEmpty) {
+              updateStatus("No ad returned for rewarded ad slot.");
+            }
+          });
+
+          googletag.enableServices();
+          googletag.display(rewardedSlot);
+        } else {
+          updateStatus("Rewarded ads are not supported on this page.");
+        }
+      });
+
+      function dismissRewardedAd() {
+        if (rewardPayload) {
+          // User was granted a reward and closed the ad.
+          displayModal(
+            "grant",
+            "You have been rewarded "
+              .concat(rewardPayload.amount, " ")
+              .concat(rewardPayload.type, "!"),
+          );
+          rewardPayload = null;
+        } else {
+          // User closed the ad without getting a reward.
+          displayModal();
+        }
+
+        updateStatus("Rewarded ad has been closed.");
+
+        if (rewardedSlot) {
+          googletag.destroySlots([rewardedSlot]);
+        }
+      }
+
+      function displayModal(type, message) {
+        if (type === void 0) {
+          type = "";
+        }
+        if (message === void 0) {
+          message = "";
+        }
+        var modal = document.getElementById("modal");
+        modal.removeAttribute("data-type");
+
+        if (type) {
+          document.getElementById("modalMessage").textContent = message;
+          modal.setAttribute("data-type", type);
+        }
+      }
+
+      function updateStatus(message) {
+        document.getElementById("status").textContent = message;
+      }
+    </script>
+    <style>
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        padding-top: 300px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal[data-type] {
+        display: block;
+      }
+
+      .modalDialog {
+        margin: auto;
+        padding: 25px;
+        background-color: white;
+        text-align: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .grantButtons,
+      .rewardButtons {
+        display: none;
+      }
+
+      .modal[data-type="grant"] .grantButtons,
+      .modal[data-type="reward"] .rewardButtons {
+        display: block;
+      }
+
+      .modal input[type="button"] {
+        padding: 0.5rem;
+        background: blue;
+        border: none;
+        border-radius: 4px;
+        margin: 4px;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="status"></h1>
+    <div id="modal" class="modal">
+      <div class="modalDialog">
+        <p id="modalMessage"></p>
+
+        <span class="grantButtons">
+          <input id="closeButton" type="button" value="Close" />
+        </span>
+
+        <span class="rewardButtons">
+          <input type="button" id="watchAdButton" value="Yes" />
+          <input id="noRewardButton" type="button" value="No" />
+        </span>
+      </div>
+    </div>
+    <script>
+      googletag.cmd.push(function () {
+        // Register click event handlers.
+        document.getElementById("closeButton").addEventListener("click", dismissRewardedAd);
+        document.getElementById("noRewardButton").addEventListener("click", dismissRewardedAd);
+      });
+    </script>
+  </body>
+</html>
