@@ -104,6 +104,32 @@
           button.setAttribute("data-enabled", tfuaEnabled.toString());
         });
       }
+      let ageTreatment = "UNSPECIFIED";
+      let ageTreatmentSequence;
+
+      function toggleAgeTreatment() {
+        const button = this;
+
+        googletag.cmd.push(() => {
+          if (!ageTreatmentSequence) {
+            ageTreatmentSequence = Object.values(googletag.enums.TagForAgeTreatment).filter(
+              (v) => typeof v === "string",
+            );
+          }
+
+          const currentIndex = ageTreatmentSequence.indexOf(ageTreatment);
+          ageTreatment = ageTreatmentSequence[(currentIndex + 1) % ageTreatmentSequence.length];
+
+          googletag.pubads().setPrivacySettings({
+            tagForAgeTreatment: googletag.enums.TagForAgeTreatment[ageTreatment],
+          });
+
+          // Refresh all ads on the page.
+          googletag.pubads().refresh();
+
+          button.setAttribute("data-value", ageTreatment);
+        });
+      }
     </script>
     <style>
       button::after {
@@ -117,15 +143,30 @@
         color: green;
         font-weight: bold;
       }
+
+      #tfatButton::after {
+        content: attr(data-value);
+        font-weight: bold;
+      }
+
+      #tfatButton[data-value="UNSPECIFIED"]::after {
+        color: red;
+      }
+
+      #tfatButton[data-value="CHILD"]::after,
+      #tfatButton[data-value="TEEN"]::after {
+        color: green;
+      }
     </style>
   </head>
   <body>
     <div id="banner-ad" style="width: 728px; height: 90px"></div>
     <div>
-      <button id="tfcdButton">Child Directed Treatment</button>
       <button id="npaButton">Non-personalized Ads</button>
       <button id="rdpButton">Restricted Data Processing</button>
+      <button id="tfatButton" data-value="UNSPECIFIED">Age Treatment</button>
       <button id="tfuaButton">Under Age of Consent</button>
+      <button id="tfcdButton">Child Directed Treatment</button>
     </div>
     <script>
       googletag.cmd.push(function () {
@@ -141,6 +182,7 @@
           .getElementById("rdpButton")
           .addEventListener("click", toggleRestrictDataProcessing);
         document.getElementById("tfuaButton").addEventListener("click", toggleUnderAgeOfConsent);
+        document.getElementById("tfatButton").addEventListener("click", toggleAgeTreatment);
       });
     </script>
   </body>

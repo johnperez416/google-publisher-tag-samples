@@ -99,8 +99,37 @@ function toggleUnderAgeOfConsent(this: HTMLButtonElement) {
   });
 }
 
+type AgeTreatmentKey = keyof typeof googletag.enums.TagForAgeTreatment;
+let ageTreatment: AgeTreatmentKey = "UNSPECIFIED";
+let ageTreatmentSequence: AgeTreatmentKey[];
+
+function toggleAgeTreatment(this: HTMLButtonElement) {
+  const button = this;
+
+  googletag.cmd.push(() => {
+    if (!ageTreatmentSequence) {
+      ageTreatmentSequence = Object.values(googletag.enums.TagForAgeTreatment).filter(
+        (v) => typeof v === "string",
+      ) as AgeTreatmentKey[];
+    }
+
+    const currentIndex = ageTreatmentSequence.indexOf(ageTreatment);
+    ageTreatment = ageTreatmentSequence[(currentIndex + 1) % ageTreatmentSequence.length];
+
+    googletag.pubads().setPrivacySettings({
+      tagForAgeTreatment: googletag.enums.TagForAgeTreatment[ageTreatment],
+    });
+
+    // Refresh all ads on the page.
+    googletag.pubads().refresh();
+
+    button.setAttribute("data-value", ageTreatment);
+  });
+}
+
 // Register click event handlers.
 document.getElementById("tfcdButton")!.addEventListener("click", toggleChildDirectedTreatment);
 document.getElementById("npaButton")!.addEventListener("click", toggleNonPersonalizedAds);
 document.getElementById("rdpButton")!.addEventListener("click", toggleRestrictDataProcessing);
 document.getElementById("tfuaButton")!.addEventListener("click", toggleUnderAgeOfConsent);
+document.getElementById("tfatButton")!.addEventListener("click", toggleAgeTreatment);
