@@ -23,113 +23,62 @@ googletag.cmd.push(() => {
   googletag.display("banner-ad");
 });
 
-let tfcdEnabled = false;
-function toggleChildDirectedTreatment(this: HTMLButtonElement) {
-  const button = this;
-
-  // Set to true to enable, false to disable.
-  tfcdEnabled = !tfcdEnabled;
+function toggleNonPersonalizedAds(this: HTMLInputElement) {
+  const isEnabled = this.checked;
 
   googletag.cmd.push(() => {
     googletag.pubads().setPrivacySettings({
-      childDirectedTreatment: tfcdEnabled,
+      nonPersonalizedAds: isEnabled,
     });
 
     // Refresh all ads on the page.
     googletag.pubads().refresh();
-
-    button.setAttribute("data-enabled", tfcdEnabled.toString());
   });
 }
 
-let npaEnabled = false;
-function toggleNonPersonalizedAds(this: HTMLButtonElement) {
-  const button = this;
-
-  // Set to true to enable, false to disable.
-  npaEnabled = !npaEnabled;
+function toggleRestrictDataProcessing(this: HTMLInputElement) {
+  const isEnabled = this.checked;
 
   googletag.cmd.push(() => {
     googletag.pubads().setPrivacySettings({
-      nonPersonalizedAds: npaEnabled,
+      restrictDataProcessing: isEnabled,
     });
 
     // Refresh all ads on the page.
     googletag.pubads().refresh();
-
-    button.setAttribute("data-enabled", npaEnabled.toString());
   });
 }
 
-let rdpEnabled = false;
-function toggleRestrictDataProcessing(this: HTMLButtonElement) {
-  const button = this;
-
-  // Set to true to enable, false to disable.
-  rdpEnabled = !rdpEnabled;
+function changeAgeTreatment(this: HTMLSelectElement) {
+  const ageTreatment = this.value as keyof typeof googletag.enums.TagForAgeTreatment;
 
   googletag.cmd.push(() => {
-    googletag.pubads().setPrivacySettings({
-      restrictDataProcessing: rdpEnabled,
-    });
-
-    // Refresh all ads on the page.
-    googletag.pubads().refresh();
-
-    button.setAttribute("data-enabled", rdpEnabled.toString());
-  });
-}
-
-let tfuaEnabled = false;
-function toggleUnderAgeOfConsent(this: HTMLButtonElement) {
-  const button = this;
-
-  // Set to true to enable, false to disable.
-  tfuaEnabled = !tfuaEnabled;
-
-  googletag.cmd.push(() => {
-    googletag.pubads().setPrivacySettings({
-      underAgeOfConsent: tfuaEnabled,
-    });
-
-    // Refresh all ads on the page.
-    googletag.pubads().refresh();
-
-    button.setAttribute("data-enabled", tfuaEnabled.toString());
-  });
-}
-
-type AgeTreatmentKey = keyof typeof googletag.enums.TagForAgeTreatment;
-let ageTreatment: AgeTreatmentKey = "UNSPECIFIED";
-let ageTreatmentSequence: AgeTreatmentKey[];
-
-function toggleAgeTreatment(this: HTMLButtonElement) {
-  const button = this;
-
-  googletag.cmd.push(() => {
-    if (!ageTreatmentSequence) {
-      ageTreatmentSequence = Object.values(googletag.enums.TagForAgeTreatment).filter(
-        (v) => typeof v === "string",
-      ) as AgeTreatmentKey[];
-    }
-
-    const currentIndex = ageTreatmentSequence.indexOf(ageTreatment);
-    ageTreatment = ageTreatmentSequence[(currentIndex + 1) % ageTreatmentSequence.length];
-
     googletag.pubads().setPrivacySettings({
       tagForAgeTreatment: googletag.enums.TagForAgeTreatment[ageTreatment],
     });
 
     // Refresh all ads on the page.
     googletag.pubads().refresh();
-
-    button.setAttribute("data-value", ageTreatment);
   });
 }
 
-// Register click event handlers.
-document.getElementById("tfcdButton")!.addEventListener("click", toggleChildDirectedTreatment);
-document.getElementById("npaButton")!.addEventListener("click", toggleNonPersonalizedAds);
-document.getElementById("rdpButton")!.addEventListener("click", toggleRestrictDataProcessing);
-document.getElementById("tfuaButton")!.addEventListener("click", toggleUnderAgeOfConsent);
-document.getElementById("tfatButton")!.addEventListener("click", toggleAgeTreatment);
+function toggleDisablePersonalization(this: HTMLInputElement) {
+  const isEnabled = this.checked;
+
+  googletag.cmd.push(() => {
+    googletag.setConfig({
+      privacyTreatments: isEnabled ? { treatments: ["disablePersonalization"] } : null,
+    });
+
+    // Refresh all ads on the page.
+    googletag.pubads().refresh();
+  });
+}
+
+// Register change event handlers.
+document.getElementById("npaCheckbox")!.addEventListener("change", toggleNonPersonalizedAds);
+document.getElementById("rdpCheckbox")!.addEventListener("change", toggleRestrictDataProcessing);
+document.getElementById("tfatSelect")!.addEventListener("change", changeAgeTreatment);
+document
+  .getElementById("disablePersonalizationCheckbox")!
+  .addEventListener("change", toggleDisablePersonalization);

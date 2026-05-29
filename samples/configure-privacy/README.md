@@ -2,12 +2,18 @@
 
 This example shows how to configure privacy settings for ad requests using the
 Google Publisher Tag (GPT) library. Learn more about available privacy settings
-in the Google Ad Manager help center:
+and [Publisher Privacy Treatments][admanager_hc_ppt] in the Google Ad Manager
+help center.
 
-*   [Child-directed treatment][admanager_hc_tfcd]
-*   [Non-personalized ads][admanager_hc_npa]
-*   [Restricted data processing][admanager_hc_ccpa]
-*   [Under age of consent][admanager_hc_tfua]
+- [Age treatment (TFAT)][admanager_hc_tfat]
+- [Non-personalized ads (NPA)][admanager_hc_npa]
+- [Restricted data processing (RDP)][admanager_hc_ccpa]
+
+Important: The tag for under age of consent (TFUA) and the tag for
+child-directed treatment (TFCD) are deprecated. Instead, use the Tag for age
+treatment (TFAT). You can mark your ad request using the TFAT setting to manage
+different age treatments for your ad requests. The TFAT “child” value is
+functionally equivalent to the TFCD or TFUA child treatment tags.
 
 To learn about working with [Limited ads][admanager_hc_ltd] in GPT, see the
 [Display a limited ad][sample_ltd] sample.
@@ -15,6 +21,6 @@ To learn about working with [Limited ads][admanager_hc_ltd] in GPT, see the
 [admanager_hc_ccpa]: //support.google.com/admanager/answer/9598414
 [admanager_hc_ltd]: //support.google.com/admanager/answer/9882911
 [admanager_hc_npa]: //support.google.com/admanager/answer/9005435
-[admanager_hc_tfcd]: //support.google.com/admanager/answer/3671211
-[admanager_hc_tfua]: //support.google.com/admanager/answer/9004919
+[admanager_hc_ppt]: //support.google.com/admanager/answer/14323214
+[admanager_hc_tfat]: //support.google.com/admanager/answer/3671211
 [sample_ltd]: //developers.google.com/publisher-tag/samples/display-limited-ad

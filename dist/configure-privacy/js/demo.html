@@ -29,160 +29,193 @@
         googletag.enableServices();
       });
 
-      let tfcdEnabled = false;
-      function toggleChildDirectedTreatment() {
-        const button = this;
-
-        // Set to true to enable, false to disable.
-        tfcdEnabled = !tfcdEnabled;
-
-        googletag.cmd.push(() => {
-          googletag.pubads().setPrivacySettings({
-            childDirectedTreatment: tfcdEnabled,
-          });
-
-          // Refresh all ads on the page.
-          googletag.pubads().refresh();
-
-          button.setAttribute("data-enabled", tfcdEnabled.toString());
-        });
-      }
-
-      let npaEnabled = false;
       function toggleNonPersonalizedAds() {
-        const button = this;
-
-        // Set to true to enable, false to disable.
-        npaEnabled = !npaEnabled;
+        const isEnabled = this.checked;
 
         googletag.cmd.push(() => {
           googletag.pubads().setPrivacySettings({
-            nonPersonalizedAds: npaEnabled,
+            nonPersonalizedAds: isEnabled,
           });
 
           // Refresh all ads on the page.
           googletag.pubads().refresh();
-
-          button.setAttribute("data-enabled", npaEnabled.toString());
         });
       }
 
-      let rdpEnabled = false;
       function toggleRestrictDataProcessing() {
-        const button = this;
-
-        // Set to true to enable, false to disable.
-        rdpEnabled = !rdpEnabled;
+        const isEnabled = this.checked;
 
         googletag.cmd.push(() => {
           googletag.pubads().setPrivacySettings({
-            restrictDataProcessing: rdpEnabled,
+            restrictDataProcessing: isEnabled,
           });
 
           // Refresh all ads on the page.
           googletag.pubads().refresh();
-
-          button.setAttribute("data-enabled", rdpEnabled.toString());
         });
       }
 
-      let tfuaEnabled = false;
-      function toggleUnderAgeOfConsent() {
-        const button = this;
-
-        // Set to true to enable, false to disable.
-        tfuaEnabled = !tfuaEnabled;
+      function changeAgeTreatment() {
+        const ageTreatment = this.value;
 
         googletag.cmd.push(() => {
-          googletag.pubads().setPrivacySettings({
-            underAgeOfConsent: tfuaEnabled,
-          });
-
-          // Refresh all ads on the page.
-          googletag.pubads().refresh();
-
-          button.setAttribute("data-enabled", tfuaEnabled.toString());
-        });
-      }
-      let ageTreatment = "UNSPECIFIED";
-      let ageTreatmentSequence;
-
-      function toggleAgeTreatment() {
-        const button = this;
-
-        googletag.cmd.push(() => {
-          if (!ageTreatmentSequence) {
-            ageTreatmentSequence = Object.values(googletag.enums.TagForAgeTreatment).filter(
-              (v) => typeof v === "string",
-            );
-          }
-
-          const currentIndex = ageTreatmentSequence.indexOf(ageTreatment);
-          ageTreatment = ageTreatmentSequence[(currentIndex + 1) % ageTreatmentSequence.length];
-
           googletag.pubads().setPrivacySettings({
             tagForAgeTreatment: googletag.enums.TagForAgeTreatment[ageTreatment],
           });
 
           // Refresh all ads on the page.
           googletag.pubads().refresh();
+        });
+      }
 
-          button.setAttribute("data-value", ageTreatment);
+      function toggleDisablePersonalization() {
+        const isEnabled = this.checked;
+
+        googletag.cmd.push(() => {
+          googletag.setConfig({
+            privacyTreatments: isEnabled ? { treatments: ["disablePersonalization"] } : null,
+          });
+
+          // Refresh all ads on the page.
+          googletag.pubads().refresh();
         });
       }
     </script>
     <style>
-      button::after {
-        content: "OFF";
-        color: red;
-        font-weight: bold;
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-top: 1rem;
+        font-family: sans-serif;
       }
 
-      button[data-enabled="true"]::after {
-        content: "ON";
-        color: green;
-        font-weight: bold;
+      .section h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
       }
 
-      #tfatButton::after {
-        content: attr(data-value);
-        font-weight: bold;
+      .row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        gap: 0.5rem;
       }
 
-      #tfatButton[data-value="UNSPECIFIED"]::after {
-        color: red;
+      .label-text {
+        font-size: 0.9rem;
       }
 
-      #tfatButton[data-value="CHILD"]::after,
-      #tfatButton[data-value="TEEN"]::after {
-        color: green;
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 20px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: #2196f3;
+      }
+
+      input:focus-visible + .slider {
+        outline: 2px solid #2196f3;
+        outline-offset: 2px;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(16px);
+      }
+
+      select {
+        padding: 0.25rem;
+        font-size: 0.9rem;
       }
     </style>
   </head>
   <body>
     <div id="banner-ad" style="width: 728px; height: 90px"></div>
-    <div>
-      <button id="npaButton">Non-personalized Ads</button>
-      <button id="rdpButton">Restricted Data Processing</button>
-      <button id="tfatButton" data-value="UNSPECIFIED">Age Treatment</button>
-      <button id="tfuaButton">Under Age of Consent</button>
-      <button id="tfcdButton">Child Directed Treatment</button>
+    <div class="controls">
+      <div class="section">
+        <h2>Privacy settings</h2>
+        <div class="row">
+          <label for="tfatSelect" class="label-text">Age Treatment:</label>
+          <select id="tfatSelect">
+            <option value="UNSPECIFIED">Unspecified</option>
+            <option value="CHILD">Child</option>
+            <option value="TEEN">Teen</option>
+          </select>
+        </div>
+        <div class="row">
+          <label class="switch">
+            <input type="checkbox" id="npaCheckbox" />
+            <span class="slider"></span>
+          </label>
+          <span class="label-text">Non-personalized Ads</span>
+        </div>
+        <div class="row">
+          <label class="switch">
+            <input type="checkbox" id="rdpCheckbox" />
+            <span class="slider"></span>
+          </label>
+          <span class="label-text">Restricted Data Processing</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Privacy treatments</h2>
+        <div class="row">
+          <label class="switch">
+            <input type="checkbox" id="disablePersonalizationCheckbox" />
+            <span class="slider"></span>
+          </label>
+          <span class="label-text">Disable Personalization</span>
+        </div>
+      </div>
     </div>
     <script>
       googletag.cmd.push(function () {
         // Request and render an ad for the "banner-ad" slot.
         googletag.display("banner-ad");
 
-        // Register click event handlers.
+        // Register change event handlers.
+        document.getElementById("npaCheckbox").addEventListener("change", toggleNonPersonalizedAds);
         document
-          .getElementById("tfcdButton")
-          .addEventListener("click", toggleChildDirectedTreatment);
-        document.getElementById("npaButton").addEventListener("click", toggleNonPersonalizedAds);
+          .getElementById("rdpCheckbox")
+          .addEventListener("change", toggleRestrictDataProcessing);
+        document.getElementById("tfatSelect").addEventListener("change", changeAgeTreatment);
         document
-          .getElementById("rdpButton")
-          .addEventListener("click", toggleRestrictDataProcessing);
-        document.getElementById("tfuaButton").addEventListener("click", toggleUnderAgeOfConsent);
-        document.getElementById("tfatButton").addEventListener("click", toggleAgeTreatment);
+          .getElementById("disablePersonalizationCheckbox")
+          .addEventListener("change", toggleDisablePersonalization);
       });
     </script>
   </body>
